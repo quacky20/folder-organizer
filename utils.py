@@ -16,10 +16,11 @@ def createFolders(base_path):
     directories = ['Images', 'Videos', 'Documents', 'Others']
     for name in directories:
         createFolder(base_path, os.path.join('Desktop', name))
+        
+def getFiles(basePath):
+    return [f for f in os.listdir(basePath) if os.path.isfile(os.path.join(basePath, f))]
 
-def moveFiles(path):
-    files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-
+def moveFiles(path, files):
     for file in files:
         if '.' not in file:
             try:
@@ -45,3 +46,20 @@ def moveFiles(path):
                     shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Others', file))
         except Exception as e:
             print(f'Error moving {file}: {e}')
+            
+def organize(path, files):
+    createFolders(path)
+    moveFiles(path, files)
+    
+def undo(path, files_to_move):
+    directories = ['Images', 'Videos', 'Documents', 'Others']
+    for folder in directories:
+        directory = os.path.join(path, 'Desktop', folder)
+        files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+        
+        for file in files:
+            if file in files_to_move:
+                try:
+                    shutil.move(os.path.join(directory, file), os.path.join(path, file))
+                except Exception as e:
+                    print(f'Error moving {file}: {e}')           
