@@ -1,32 +1,33 @@
 import os
 import shutil
 
-def createFolder(base_path, name):
+def createFolder(save_path, name):
     try:
-        os.mkdir(os.path.join(base_path, name))
-        print(f'Created directory: {name}')
+        os.mkdir(os.path.join(save_path, name))
     except FileExistsError:
-        print(f'{name} already exists')
+        return
     except PermissionError:
         print('Permission denied')
     except Exception as e:
         print(f'Error: {e}')
+        raise
         
-def createFolders(base_path):
+def createFolders(save_path):
     directories = ['Images', 'Videos', 'Documents', 'Others']
     for name in directories:
-        createFolder(base_path, os.path.join('Desktop', name))
+        createFolder(save_path, name)
         
 def getFiles(basePath):
     return [f for f in os.listdir(basePath) if os.path.isfile(os.path.join(basePath, f))]
 
-def moveFiles(path, files):
+def moveFiles(path, savePath, files):
     for file in files:
         if '.' not in file:
             try:
-                shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Others', file))
+                shutil.move(os.path.join(path, file), os.path.join(savePath, 'Others', file))
             except Exception as e:
                 print(f'Error moving {file}: {e}')
+                raise
             finally:
                 continue
         
@@ -35,26 +36,23 @@ def moveFiles(path, files):
         try:
             match extension:
                 case 'jpg' | 'jpeg' | 'png' | 'gif' | 'psd' | 'svg':
-                    shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Images', file))
+                    shutil.move(os.path.join(path, file), os.path.join(savePath, 'Images', file))
                 case 'mp4' | 'mov' | 'avi' | 'wmv' | 'mkv' | 'webm' | 'flv' | 'mpg' | 'mpeg':
-                    shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Videos', file))
+                    shutil.move(os.path.join(path, file), os.path.join(savePath, 'Videos', file))
                 case 'pdf' | 'doc' | 'docx' | 'txt' | 'ppt' | 'pptx' | 'xls' | 'xlsx':
-                    shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Documents', file))
+                    shutil.move(os.path.join(path, file), os.path.join(savePath, 'Documents', file))
                 case 'lnk':
                     pass
                 case _:
-                    shutil.move(os.path.join(path, file), os.path.join(path, 'Desktop', 'Others', file))
+                    shutil.move(os.path.join(path, file), os.path.join(savePath, 'Others', file))
         except Exception as e:
             print(f'Error moving {file}: {e}')
-            
-def organize(path, files):
-    createFolders(path)
-    moveFiles(path, files)
-    
-def undo(path, files_to_move):
+            raise
+                
+def undo(path, save_path, files_to_move):
     directories = ['Images', 'Videos', 'Documents', 'Others']
     for folder in directories:
-        directory = os.path.join(path, 'Desktop', folder)
+        directory = os.path.join(save_path, folder)
         files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         
         for file in files:
@@ -62,4 +60,9 @@ def undo(path, files_to_move):
                 try:
                     shutil.move(os.path.join(directory, file), os.path.join(path, file))
                 except Exception as e:
-                    print(f'Error moving {file}: {e}')           
+                    print(f'Error moving {file}: {e}')  
+                    raise     
+
+def organize(path, savePath, files):
+    createFolders(savePath)
+    moveFiles(path, savePath, files)
