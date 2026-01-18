@@ -77,6 +77,7 @@ class Window(ctk.CTk):
         self.resizable(False, False)
         self.title('Folder Organizer')
         self.geometry('600x400')
+        self.iconbitmap('./icon.ico')
         
         self.basePath = basePath
         

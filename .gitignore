@@ -3,3 +3,6 @@ __pycache__/
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
+build/
+*.spec
+dist/
